@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pet Supplies US vs JP Market Report</title>
+  <style>
+    :root{--bg:#f7f8f4;--panel:#fff;--ink:#172033;--muted:#64748b;--line:#d7ddd2;--us:#2563eb;--jp:#c2410c;--green:#15803d;--amber:#b7791f;--red:#b91c1c;--violet:#6d28d9}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:0}
+    header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.96);border-bottom:1px solid var(--line);padding:22px 28px 14px}
+    .topbar{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:16px}
+    h1{margin:0 0 4px;font-size:26px;line-height:1.15;font-weight:780}
+    .subtitle{color:var(--muted);font-size:13px}
+    .filters{display:grid;grid-template-columns:repeat(6,minmax(135px,1fr));gap:10px}
+    .filterLabel{display:grid;gap:5px;color:#5f718d;font-size:11px;font-weight:800;text-transform:uppercase}
+    .multiFilter{position:relative;min-width:0}
+    .filterButton{height:36px;width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink);padding:0 10px;font-size:13px;cursor:pointer;text-align:left}
+    .filterButton span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .filterButton:after{content:"⌄";color:#64748b;font-size:15px}
+    .filterMenu{display:none;position:absolute;left:0;right:0;top:42px;z-index:40;min-width:260px;border:1px solid var(--line);border-radius:8px;background:#fff;box-shadow:0 18px 38px rgba(15,23,42,.14);padding:10px}
+    .multiFilter.open .filterMenu{display:block}
+    .filterSearch{width:100%;height:34px;border:1px solid var(--line);border-radius:6px;padding:0 9px;margin-bottom:8px}
+    .filterActions{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;font-size:12px;color:var(--muted)}
+    .filterActions button{border:0;background:transparent;color:#1d4ed8;font-weight:800;cursor:pointer;padding:0}
+    .filterOptions{display:grid;gap:4px;max-height:250px;overflow:auto;font-size:12px;text-transform:none}
+    .filterOption{display:flex;align-items:center;gap:7px;min-height:26px;color:#334155}
+    .filterOption input{width:14px;height:14px;margin:0}
+    main{padding:20px 28px 42px}
+    .note{border:1px solid var(--line);border-radius:8px;background:#fff;padding:12px 14px;color:#43536a;font-size:12px;line-height:1.45;margin-bottom:16px}
+    .reportGroup{border:1px solid var(--line);border-radius:12px;background:#fff;padding:14px;margin-bottom:22px;box-shadow:0 12px 28px rgba(15,23,42,.08)}
+    .groupTitle{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+    .groupTitle h2,.comparisonTitle h2{margin:0;text-transform:uppercase;color:#172033}
+    .groupTitle h2{font-size:18px}.comparisonTitle h2{font-size:17px}
+    .comparison{margin-bottom:18px}.comparison:last-child{margin-bottom:0}
+    .comparisonTitle{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin:18px 0 10px}.comparison:first-child .comparisonTitle{margin-top:0}
+    .grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+    .kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+    .kpi{border:1px solid var(--line);border-radius:7px;background:#fff;padding:9px;min-height:76px}
+    .kpi span{display:block;color:var(--muted);font-size:11px;margin-bottom:8px}.kpi strong{font-size:18px;line-height:1.1;word-break:break-word}.kpi .small{margin-top:5px}
+    .panel{border-top:5px solid var(--us);border-radius:8px;background:var(--panel);box-shadow:0 8px 22px rgba(15,23,42,.08);overflow:hidden}
+    .panel.jp{border-top-color:var(--jp)}.panel.all{border-top-color:#475569}
+    .panelHead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line);background:#fff}
+    .panelHead h3{margin:0;font-size:14px}.basis{color:var(--muted);font-size:12px;text-align:right}.panelBody{padding:12px 14px 14px}
+    .tableTools{display:flex;justify-content:flex-end;margin-bottom:6px}.download{border:1px solid var(--line);border-radius:6px;background:#fff;color:#1d4ed8;font-size:11px;font-weight:800;padding:6px 9px;cursor:pointer}
+    .tableWrap{max-height:560px;overflow:auto;border:1px solid var(--line);border-radius:6px;background:#fff}
+    .table{width:100%;border-collapse:collapse;font-size:12px;table-layout:auto;min-width:920px}
+    .table.raw{min-width:1800px}.table.matrix{min-width:1180px}.table th,.table td{padding:7px 8px;border-bottom:1px solid #e6e2da;vertical-align:top}
+    .table th{position:sticky;top:0;z-index:2;background:#f8fafc;color:#5f718d;text-align:left;font-size:11px;white-space:nowrap}
+    .table th:first-child,.table td:first-child{position:sticky;left:0;z-index:3;background:#fff;box-shadow:1px 0 0 var(--line)}
+    .table thead th:first-child{z-index:5;background:#f8fafc}.table tfoot td{position:sticky;bottom:0;background:#f5f2ec;font-weight:800;border-top:1px solid var(--line)}
+    .num{text-align:right!important;font-variant-numeric:tabular-nums;white-space:nowrap}.small{color:var(--muted);font-size:11px;line-height:1.3}.empty{padding:14px;color:var(--muted)}
+    .pill{display:inline-flex;align-items:center;justify-content:center;min-width:54px;padding:3px 7px;border-radius:99px;font-size:11px;font-weight:800}
+    .Star{background:#fef3c7;color:#b45309}.Traffic{background:#dbeafe;color:#2563eb}.Build{background:#dcfce7;color:#15803d}.Trap{background:#fee2e2;color:#b91c1c}
+    .up{color:var(--green)}.down{color:var(--red)}.flat{color:#64748b}
+    .productCell{display:grid;grid-template-columns:46px minmax(190px,1fr);gap:9px;align-items:start;min-width:330px}.thumb{width:46px;height:46px;object-fit:cover;border-radius:6px;border:1px solid var(--line);background:#f8fafc}
+    .productTitle{line-height:1.3;font-weight:700}.mono{font-variant-numeric:tabular-nums;color:#475569}
+    .serChart{position:relative;border:1px solid var(--line);border-radius:8px;background:#fff;padding:10px;overflow:auto}.serChart svg{min-width:760px;display:block}.serLegend{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 8px 4px;font-size:12px}.serPoint{cursor:crosshair}
+    .serInfo{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}.serInfoCard{border:1px solid var(--line);border-radius:7px;background:#fff;padding:8px;min-height:58px}.serInfoCard span{display:block;color:var(--muted);font-size:10px;margin-bottom:5px}.serInfoCard strong{font-size:14px}
+    details.deepItem{border:1px solid var(--line);border-radius:8px;background:#fff;margin-bottom:10px;overflow:hidden}details.deepItem summary{list-style:none;cursor:pointer;padding:12px 14px;display:flex;justify-content:space-between;gap:16px;align-items:center}details.deepItem summary::-webkit-details-marker{display:none}.deepContent{border-top:1px solid var(--line);padding:12px 14px 16px}.deepContent h4{margin:15px 0 8px;text-transform:uppercase;font-size:12px}
+    .matrixProduct{display:grid;grid-template-columns:34px 1fr;gap:7px;padding:5px 0;border-bottom:1px solid #e6e2da}.matrixProduct:last-child{border-bottom:0}.matrixProduct img{width:34px;height:34px;object-fit:cover;border-radius:5px;border:1px solid var(--line)}
+    @media(max-width:1100px){header{position:static}.filters{grid-template-columns:repeat(2,minmax(0,1fr))}.grid2{grid-template-columns:1fr}.kpis,.serInfo{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div>
+        <h1>Pet Supplies US vs JP Market Report</h1>
+        <div class="subtitle">Amazon category export | US vs JP | estimated revenue, units, brand, price range, SER opportunity map</div>
+      </div>
+    </div>
+    <div class="filters">
+      <div class="filterLabel">Market<div id="filter-market"></div></div>
+      <div class="filterLabel">Category<div id="filter-category"></div></div>
+      <div class="filterLabel">Brand<div id="filter-brand"></div></div>
+      <div class="filterLabel">Price Range<div id="filter-priceRange"></div></div>
+      <div class="filterLabel">Page Score<div id="filter-scoreBand"></div></div>
+      <div class="filterLabel">SER Class<div id="filter-serClass"></div></div>
+    </div>
+  </header>
+  <main>
+    <div class="note"><strong>Basis:</strong> All source files are Amazon product exports by market/category. Revenue and unit metrics are estimated monthly and trailing 12-month values from the source files. <strong>Currency note:</strong> US and JP money fields use their source market currency, so the report compares each market side-by-side and avoids adding USD and JPY together. <strong>SER:</strong> SER uses E = %Monthly Units / %Products and R = %Monthly Revenue / %Products inside the current market/filter context.</div>
+    <section class="reportGroup">
+      <div class="groupTitle"><h2>Market Breakdown</h2><div class="subtitle">All tables recalculate from the filters above</div></div>
+      <section class="comparison"><div class="comparisonTitle"><h2>Highlight Number</h2><div class="subtitle">Filtered view by market</div></div><div id="highlight"></div></section>
+      <div id="categoryShare"></div>
+      <div id="categoryBreakdown"></div>
+      <div id="priceBreakdown"></div>
+      <div id="brandBreakdown"></div>
+      <div id="serBreakdown"></div>
+      <div id="deepDive"></div>
+      <div id="rawData"></div>
+    </section>
+  </main>
+  <script>
+    const DATA = {"notes":{"basis":"All source files are Amazon product exports by market/category. Revenue and unit metrics are estimated monthly and trailing 12-month values from the source files.","currency":"US and JP money fields use their source market currency, so the report compares each market side-by-side and avoids adding USD and JPY together.","serModel":"SER uses E = %Monthly Units / %Products and R = %Monthly Revenue / %Products inside the current market/filter context."},"products":[],"filters":{}};
+    const DATA_FILES = ["./data/products_us.json","./data/products_jp.json"];
+    const FILTER_IDS = ["market","category","brand","priceRange","scoreBand","serClass"];
+    const FILTER_STATE = Object.fromEntries(FILTER_IDS.map(id => [id, new Set()]));
+
+    const esc = v => String(v ?? "").replace(/[&<>"']/g, ch => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[ch]));
+    const sum = (rows, key) => rows.reduce((total, row) => total + Number(row[key] || 0), 0);
+    const avg = (rows, key) => rows.length ? sum(rows, key) / rows.length : 0;
+    const pct = value => Number.isFinite(value) ? (value * 100).toFixed(value >= .1 ? 1 : 2) + "%" : "n/a";
+    const fmtNum = value => Number(value || 0).toLocaleString("en-US", { maximumFractionDigits: 0 });
+    const fmtPrice = (market, value) => {
+      const n = Number(value || 0);
+      if (!n) return "n/a";
+      if (market === "US") return "$" + n.toLocaleString("en-US", { maximumFractionDigits: 2 });
+      return "¥" + n.toLocaleString("en-US", { maximumFractionDigits: 0 });
+    };
+    const shortMoney = (market, value) => {
+      const n = Number(value || 0);
+      const sign = market === "US" ? "$" : "¥";
+      const abs = Math.abs(n);
+      if (abs >= 1e9) return sign + (n / 1e9).toFixed(1) + "B";
+      if (abs >= 1e6) return sign + (n / 1e6).toFixed(1) + "M";
+      if (abs >= 1e3) return sign + (n / 1e3).toFixed(1) + "K";
+      return sign + n.toLocaleString("en-US", { maximumFractionDigits: market === "US" ? 2 : 0 });
+    };
+    const growthCell = value => {
+      const n = Number(value);
+      if (!Number.isFinite(n) || n === 0) return '<span class="flat">n/a</span>';
+      const normalized = Math.abs(n) > 5 ? n / 100 : n;
+      const cls = normalized > 0 ? "up" : normalized < 0 ? "down" : "flat";
+      return `<span class="${cls}">${normalized > 0 ? "+" : ""}${pct(normalized)}</span>`;
+    };
+    const scoreBandFromValue = value => {
+      const score = Number(value || 0);
+      if (score >= 9) return "9-10 Excellent";
+      if (score >= 7) return "7-8.9 Strong";
+      if (score >= 5) return "5-6.9 Developing";
+      if (score > 0) return "<5 Weak";
+      return "Unknown";
+    };
+    function hydrateRows(rows) {
+      return rows.map(row => ({
+        ...row,
+        scoreBand: row.scoreBand || scoreBandFromValue(row.pageScore),
+      }));
+    }
+    function rebuildFilters() {
+      const values = key => [...new Set(DATA.products.map(item => String(item[key] ?? "").trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }));
+      DATA.filters = {
+        market: values("market"),
+        category: values("category"),
+        brand: values("brand"),
+        priceRange: values("priceRange"),
+        scoreBand: values("scoreBand"),
+        serClass: ["Star","Traffic","Build","Trap"],
+      };
+    }
+    async function loadExternalData() {
+      if (!DATA_FILES.length) return;
+      const chunks = await Promise.all(DATA_FILES.map(async file => {
+        const response = await fetch(file);
+        if (!response.ok) throw new Error(`Cannot load ${file}`);
+        return response.json();
+      }));
+      DATA.products = hydrateRows(chunks.flat());
+      rebuildFilters();
+    }
+
+    function aggregate(rows, market, key) {
+      const selected = rows.filter(row => !market || row.market === market);
+      const map = new Map();
+      for (const row of selected) {
+        const name = row[key] || "Unknown";
+        const cur = map.get(name) || { name, market: market || "All", products: 0, monthlyRevenue: 0, annualRevenue: 0, monthlyUnits: 0, annualUnits: 0, reviews: 0, pageScoreWeighted: 0, ratingWeighted: 0, growthWeighted: 0, priceWeighted: 0, opportunityWeighted: 0 };
+        cur.products += 1;
+        cur.monthlyRevenue += Number(row.monthlyRevenue || 0);
+        cur.annualRevenue += Number(row.annualRevenue || 0);
+        cur.monthlyUnits += Number(row.monthlyUnits || 0);
+        cur.annualUnits += Number(row.annualUnits || 0);
+        cur.reviews += Number(row.reviews || 0);
+        cur.pageScoreWeighted += Number(row.pageScore || 0) * Number(row.monthlyRevenue || 0);
+        cur.ratingWeighted += Number(row.rating || 0) * Number(row.monthlyRevenue || 0);
+        cur.growthWeighted += Number(row.twelveMonthGrowth || 0) * Number(row.monthlyRevenue || 0);
+        cur.priceWeighted += Number(row.buyBoxPrice || 0) * Number(row.monthlyUnits || 0);
+        cur.opportunityWeighted += Number(row.opportunity || 0) * Number(row.monthlyRevenue || 0);
+        map.set(name, cur);
+      }
+      const out = [...map.values()].filter(row => row.products > 0);
+      const totalProducts = sum(out, "products") || 1;
+      const totalRevenue = sum(out, "monthlyRevenue") || 1;
+      const totalUnits = sum(out, "monthlyUnits") || 1;
+      return out.map(row => {
+        const productShare = row.products / totalProducts;
+        const unitShare = row.monthlyUnits / totalUnits;
+        const revenueShare = row.monthlyRevenue / totalRevenue;
+        const e = productShare ? unitShare / productShare : 0;
+        const r = productShare ? revenueShare / productShare : 0;
+        return {
+          ...row,
+          share: revenueShare,
+          asp: row.monthlyUnits ? row.monthlyRevenue / row.monthlyUnits : 0,
+          avgPrice: row.monthlyUnits ? row.priceWeighted / row.monthlyUnits : 0,
+          avgPageScore: row.monthlyRevenue ? row.pageScoreWeighted / row.monthlyRevenue : 0,
+          avgRating: row.monthlyRevenue ? row.ratingWeighted / row.monthlyRevenue : 0,
+          avgGrowth12: row.monthlyRevenue ? row.growthWeighted / row.monthlyRevenue : 0,
+          avgOpportunity: row.monthlyRevenue ? row.opportunityWeighted / row.monthlyRevenue : 0,
+          e,
+          r,
+          serClass: e >= 1 && r >= 1 ? "Star" : e >= 1 ? "Traffic" : r >= 1 ? "Build" : "Trap",
+        };
+      }).sort((a, b) => b.monthlyRevenue - a.monthlyRevenue);
+    }
+
+    function selectedSet(id) { return FILTER_STATE[id] || new Set(); }
+    function productPassesBaseFilters(row) {
+      for (const id of ["market","category","brand","priceRange","scoreBand"]) {
+        const picked = selectedSet(id);
+        if (!picked.size) continue;
+        if (!picked.has(String(row[id] ?? ""))) return false;
+      }
+      return true;
+    }
+    function serClassMap(contextRows) {
+      const map = new Map();
+      for (const market of ["US", "JP"]) {
+        for (const row of aggregate(contextRows, market, "category")) {
+          map.set(`${market}\u0001${row.name}`, row.serClass);
+        }
+      }
+      return map;
+    }
+    function filteredRows() {
+      const baseRows = DATA.products.filter(productPassesBaseFilters);
+      const serPicked = selectedSet("serClass");
+      if (!serPicked.size) return baseRows;
+      const classes = serClassMap(baseRows);
+      return baseRows.filter(row => serPicked.has(classes.get(`${row.market}\u0001${row.category}`) || "Trap"));
+    }
+
+    function filterLabel(id) {
+      const picked = [...selectedSet(id)];
+      if (!picked.length) return "All";
+      if (picked.length === 1) return picked[0];
+      return picked.length + " selected";
+    }
+    function syncFilter(id) {
+      const box = document.querySelector(`[data-filter-box="${id}"]`);
+      if (!box) return;
+      box.querySelector(".filterButton span").textContent = filterLabel(id);
+      box.querySelector(".filterCount").textContent = `${selectedSet(id).size} selected`;
+      box.querySelectorAll("input[type=checkbox]").forEach(input => input.checked = selectedSet(id).has(input.value));
+    }
+    function initFilters() {
+      for (const id of FILTER_IDS) {
+        const host = document.getElementById("filter-" + id);
+        const values = [...(DATA.filters[id] || [])].filter(value => value !== null && value !== undefined && String(value).trim() !== "");
+        host.innerHTML = `<div class="multiFilter" data-filter-box="${id}"><button class="filterButton" type="button"><span>All</span></button><div class="filterMenu"><input class="filterSearch" type="search" placeholder="Tìm kiếm..."><div class="filterActions"><button type="button" data-action="clear">Clear</button><span class="filterCount">0 selected</span></div><div class="filterOptions">${values.map(value => `<label class="filterOption"><input type="checkbox" value="${esc(value)}"><span>${esc(value)}</span></label>`).join("")}</div></div></div>`;
+        const box = host.querySelector(".multiFilter");
+        box.querySelector(".filterButton").addEventListener("click", event => {
+          event.preventDefault();
+          document.querySelectorAll(".multiFilter.open").forEach(open => { if (open !== box) open.classList.remove("open"); });
+          box.classList.toggle("open");
+          box.querySelector(".filterSearch").focus();
+        });
+        box.querySelector(".filterSearch").addEventListener("input", event => {
+          const q = event.target.value.toLowerCase();
+          box.querySelectorAll(".filterOption").forEach(option => option.style.display = option.innerText.toLowerCase().includes(q) ? "flex" : "none");
+        });
+        box.querySelector("[data-action=clear]").addEventListener("click", event => {
+          event.preventDefault();
+          selectedSet(id).clear();
+          syncFilter(id);
+          render();
+        });
+        box.querySelectorAll("input[type=checkbox]").forEach(input => input.addEventListener("change", () => {
+          if (input.checked) selectedSet(id).add(input.value);
+          else selectedSet(id).delete(input.value);
+          syncFilter(id);
+          render();
+        }));
+        syncFilter(id);
+      }
+      document.addEventListener("click", event => {
+        if (!event.target.closest(".multiFilter")) document.querySelectorAll(".multiFilter.open").forEach(box => box.classList.remove("open"));
+      });
+    }
+
+    function panel(market, inner, basis = "") {
+      const cls = market === "JP" ? "jp" : market === "US" ? "us" : "all";
+      return `<section class="panel ${cls}"><div class="panelHead"><h3>${esc(market)}</h3><div class="basis">${esc(basis)}</div></div><div class="panelBody">${inner}</div></section>`;
+    }
+    function comparison(title, subtitle, left, right) {
+      return `<section class="comparison"><div class="comparisonTitle"><h2>${esc(title)}</h2><div class="subtitle">${esc(subtitle || "")}</div></div><div class="grid2">${left}${right}</div></section>`;
+    }
+    function downloadTable(button) {
+      const table = button.parentElement.nextElementSibling.querySelector("table");
+      const rows = [...table.querySelectorAll("tr")].map(tr => [...tr.children].map(td => '"' + td.innerText.replace(/\s+/g, " ").trim().replace(/"/g, '""') + '"').join(","));
+      const blob = new Blob(["\ufeff" + rows.join("\n")], { type: "text/csv;charset=utf-8" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = (button.dataset.file || "table") + ".csv";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+    function tableBlock(html, file) {
+      return `<div class="tableTools"><button class="download" data-file="${esc(file)}" onclick="downloadTable(this)">Tải data</button></div><div class="tableWrap">${html}</div>`;
+    }
+
+    function kpiCard(label, value, secondary) {
+      return `<div class="kpi"><span>${esc(label)}</span><strong>${value}</strong><div class="small">${secondary || ""}</div></div>`;
+    }
+    function highlights() {
+      const rows = filteredRows();
+      const us = rows.filter(row => row.market === "US");
+      const jp = rows.filter(row => row.market === "JP");
+      const usRevenue = sum(us, "monthlyRevenue");
+      const jpRevenue = sum(jp, "monthlyRevenue");
+      const usUnits = sum(us, "monthlyUnits");
+      const jpUnits = sum(jp, "monthlyUnits");
+      const topUs = aggregate(rows, "US", "category")[0];
+      const topJp = aggregate(rows, "JP", "category")[0];
+      return `<div class="kpis">
+        ${kpiCard("US Monthly Revenue", shortMoney("US", usRevenue), `${fmtNum(us.length)} products · ${fmtNum(usUnits)} units/mo`)}
+        ${kpiCard("JP Monthly Revenue", shortMoney("JP", jpRevenue), `${fmtNum(jp.length)} products · ${fmtNum(jpUnits)} units/mo`)}
+        ${kpiCard("US ASP", fmtPrice("US", usUnits ? usRevenue / usUnits : 0), `Top category: ${esc(topUs?.name || "n/a")}`)}
+        ${kpiCard("JP ASP", fmtPrice("JP", jpUnits ? jpRevenue / jpUnits : 0), `Top category: ${esc(topJp?.name || "n/a")}`)}
+        ${kpiCard("Avg Page Score", (avg(rows, "pageScore") || 0).toFixed(1), `Avg rating: ${(avg(rows, "rating") || 0).toFixed(1)}`)}
+      </div>`;
+    }
+
+    function metricTable(rows, market, label, options = {}) {
+      if (!rows.length) return '<div class="empty">No rows for current filter.</div>';
+      const visible = rows.slice(0, options.limit || 120);
+      const body = visible.map(row => `<tr>
+        <td>${esc(row.name)}</td>
+        <td class="num">${pct(row.share)}</td>
+        <td class="num">${shortMoney(market, row.monthlyRevenue)}</td>
+        <td class="num">${shortMoney(market, row.annualRevenue)}</td>
+        <td class="num">${fmtNum(row.monthlyUnits)}</td>
+        <td class="num">${fmtPrice(market, row.avgPrice || row.asp)}</td>
+        <td class="num">${row.avgPageScore.toFixed(1)}</td>
+        <td class="num">${growthCell(row.avgGrowth12)}</td>
+        <td><span class="pill ${row.serClass}">${row.serClass}</span></td>
+        <td class="num">${fmtNum(row.products)}</td>
+      </tr>`).join("");
+      const totalRevenue = sum(rows, "monthlyRevenue");
+      const totalAnnual = sum(rows, "annualRevenue");
+      const totalUnits = sum(rows, "monthlyUnits");
+      const html = `<table class="table"><thead><tr><th>${esc(label)}</th><th class="num">Share</th><th class="num">Monthly Rev.</th><th class="num">12M Rev.</th><th class="num">Monthly Units</th><th class="num">Avg Price</th><th class="num">Page Score</th><th class="num">12M Growth</th><th>SER</th><th class="num">Products</th></tr></thead><tbody>${body}</tbody><tfoot><tr><td>Total visible</td><td class="num">100%</td><td class="num">${shortMoney(market, totalRevenue)}</td><td class="num">${shortMoney(market, totalAnnual)}</td><td class="num">${fmtNum(totalUnits)}</td><td class="num">${fmtPrice(market, totalUnits ? totalRevenue / totalUnits : 0)}</td><td colspan="4"></td></tr></tfoot></table>`;
+      return tableBlock(html, `${market}_${label}`.replace(/[^a-z0-9]+/gi, "_").toLowerCase());
+    }
+    function marketPanel(market, key, label) {
+      const rows = aggregate(filteredRows(), market, key);
+      return panel(market, metricTable(rows, market, label), `${rows.length} ${label.toLowerCase()} rows`);
+    }
+
+    function categoryShare() {
+      const rows = filteredRows();
+      const us = aggregate(rows, "US", "category");
+      const jp = aggregate(rows, "JP", "category");
+      const names = [...new Set([...us.map(row => row.name), ...jp.map(row => row.name)])].sort((a, b) => {
+        const aRev = (us.find(row => row.name === a)?.share || 0) + (jp.find(row => row.name === a)?.share || 0);
+        const bRev = (us.find(row => row.name === b)?.share || 0) + (jp.find(row => row.name === b)?.share || 0);
+        return bRev - aRev;
+      });
+      const body = names.map(name => {
+        const u = us.find(row => row.name === name);
+        const j = jp.find(row => row.name === name);
+        return `<tr><td>${esc(name)}</td><td class="num">${u ? pct(u.share) : "n/a"}</td><td class="num">${u ? shortMoney("US", u.monthlyRevenue) : "n/a"}</td><td class="num">${j ? pct(j.share) : "n/a"}</td><td class="num">${j ? shortMoney("JP", j.monthlyRevenue) : "n/a"}</td><td>${u ? `<span class="pill ${u.serClass}">${u.serClass}</span>` : ""}</td><td>${j ? `<span class="pill ${j.serClass}">${j.serClass}</span>` : ""}</td></tr>`;
+      }).join("");
+      const html = `<table class="table"><thead><tr><th>Category</th><th class="num">US Share</th><th class="num">US Monthly Rev.</th><th class="num">JP Share</th><th class="num">JP Monthly Rev.</th><th>US SER</th><th>JP SER</th></tr></thead><tbody>${body}</tbody></table>`;
+      return `<section class="comparison"><div class="comparisonTitle"><h2>Category Share</h2><div class="subtitle">Share is calculated inside each market currency context</div></div>${tableBlock(html, "category_share_us_jp")}</section>`;
+    }
+
+    function serChart(market) {
+      const rows = aggregate(filteredRows(), market, "category");
+      if (!rows.length) return panel(market, '<div class="empty">No rows for current filter.</div>');
+      const W = 860, H = 440, L = 70, T = 48, R = 26, B = 62;
+      const maxE = Math.max(2, ...rows.map(row => row.e)) * 1.08;
+      const maxR = Math.max(2, ...rows.map(row => row.r)) * 1.08;
+      const maxRev = Math.max(...rows.map(row => row.monthlyRevenue), 1);
+      const x = value => L + (W - L - R) * Math.min(value, maxE) / maxE;
+      const y = value => T + (H - T - B) * (1 - Math.min(value, maxR) / maxR);
+      const color = row => row.serClass === "Star" ? "#e99a19" : row.serClass === "Traffic" ? "#3b7ddd" : row.serClass === "Build" ? "#24b47e" : "#d94a4a";
+      const id = "ser_" + market;
+      const points = rows.map(row => {
+        const rad = 7 + Math.sqrt(row.monthlyRevenue / maxRev) * 28;
+        return `<g class="serPoint" data-id="${id}" data-name="${esc(row.name)}" data-revenue="${shortMoney(market, row.monthlyRevenue)}" data-units="${fmtNum(row.monthlyUnits)}" data-class="${row.serClass}" onmousemove="updateSerInfo(this)">
+          <circle cx="${x(row.e)}" cy="${y(row.r)}" r="${rad}" fill="${color(row)}" stroke="#fff" stroke-width="1.5" opacity=".95"><title>${esc(row.name)} | E ${row.e.toFixed(2)} | R ${row.r.toFixed(2)} | ${shortMoney(market, row.monthlyRevenue)}</title></circle>
+          <text x="${x(row.e) + rad + 4}" y="${y(row.r) + 4}" fill="#172033" font-size="11" font-weight="700">${esc(row.name)}</text>
+        </g>`;
+      }).join("");
+      const top = rows[0];
+      const svg = `<div class="serChart"><div class="serLegend"><span><span class="pill Star">Star</span> high units + high revenue</span><span><span class="pill Traffic">Traffic</span> high units</span><span><span class="pill Build">Build</span> high revenue</span><span><span class="pill Trap">Trap</span> low efficiency</span></div><svg viewBox="0 0 ${W} ${H}" role="img">
+        <line x1="${L}" y1="${T}" x2="${L}" y2="${H-B}" stroke="#738299"></line><line x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}" stroke="#738299"></line>
+        <line x1="${x(1)}" y1="${T}" x2="${x(1)}" y2="${H-B}" stroke="#9aa8bc" stroke-dasharray="6 6"></line><line x1="${L}" y1="${y(1)}" x2="${W-R}" y2="${y(1)}" stroke="#9aa8bc" stroke-dasharray="6 6"></line>
+        <text x="${W/2-78}" y="26" fill="#172033" font-size="18" font-weight="800">S.E.R Category Matrix</text><text x="24" y="${H/2+55}" transform="rotate(-90 24 ${H/2+55})" fill="#172033" font-size="11" font-weight="700">R Revenue Efficiency</text><text x="${W/2-80}" y="${H-18}" fill="#172033" font-size="11" font-weight="700">E Unit Efficiency</text>
+        ${points}
+      </svg></div><div class="serInfo"><div class="serInfoCard"><span>Category</span><strong id="${id}-name">${esc(top.name)}</strong></div><div class="serInfoCard"><span>Monthly Rev.</span><strong id="${id}-revenue">${shortMoney(market, top.monthlyRevenue)}</strong></div><div class="serInfoCard"><span>Monthly Units</span><strong id="${id}-units">${fmtNum(top.monthlyUnits)}</strong></div><div class="serInfoCard"><span>Class</span><strong id="${id}-class">${top.serClass}</strong></div></div>`;
+      return panel(market, svg, `${rows.length} categories`);
+    }
+    function updateSerInfo(point) {
+      const id = point.dataset.id;
+      for (const key of ["name", "revenue", "units", "class"]) {
+        const target = document.getElementById(`${id}-${key}`);
+        if (target) target.textContent = point.dataset[key] || "";
+      }
+    }
+
+    function productRows(market, category = null) {
+      return filteredRows().filter(row => row.market === market && (!category || row.category === category)).sort((a, b) => Number(b.monthlyRevenue || 0) - Number(a.monthlyRevenue || 0));
+    }
+    function productTable(rows, market, limit = 120) {
+      if (!rows.length) return '<div class="empty">No products for current filter.</div>';
+      const body = rows.slice(0, limit).map(row => `<tr>
+        <td><div class="productCell">${row.image ? `<a href="${esc(row.productUrl)}"><img class="thumb" src="${esc(row.image)}" loading="lazy" referrerpolicy="no-referrer" onerror="imageFallback(this)"></a>` : '<div class="thumb"></div>'}<div><a class="productTitle" href="${esc(row.productUrl)}">${esc(row.title)}</a><div class="small mono">${esc(row.asin)} · ${esc(row.sourceFile)}</div></div></div></td>
+        <td>${esc(row.category)}</td><td>${esc(row.brand)}</td><td class="num">${shortMoney(market, row.monthlyRevenue)}</td><td class="num">${shortMoney(market, row.annualRevenue)}</td><td class="num">${fmtNum(row.monthlyUnits)}</td><td class="num">${fmtPrice(market, row.buyBoxPrice)}</td><td class="num">${Number(row.pageScore || 0).toFixed(1)}</td><td class="num">${Number(row.rating || 0).toFixed(1)}</td><td class="num">${fmtNum(row.reviews)}</td><td class="num">${fmtNum(row.mainRank)}</td><td>${esc(row.priceRange)}</td><td class="num">${growthCell(row.twelveMonthGrowth)}</td>
+      </tr>`).join("");
+      const html = `<table class="table raw"><thead><tr><th>Product</th><th>Category</th><th>Brand</th><th class="num">Monthly Rev.</th><th class="num">12M Rev.</th><th class="num">Monthly Units</th><th class="num">Buy Box</th><th class="num">Page Score</th><th class="num">Rating</th><th class="num">Reviews</th><th class="num">Rank</th><th>Price Range</th><th class="num">12M Growth</th></tr></thead><tbody>${body}</tbody></table>`;
+      return tableBlock(html, `${market}_products`);
+    }
+    function brandPriceMatrix(rows, market) {
+      const ranges = DATA.filters.priceRange.filter(range => range.startsWith(market));
+      const brands = aggregate(rows, market, "brand").filter(row => row.name !== "Unknown").slice(0, 7).map(row => row.name);
+      if (!brands.length) return '<div class="empty">No brand matrix for current filter.</div>';
+      const body = brands.map(brand => `<tr><td><strong>${esc(brand)}</strong></td>${ranges.map(range => {
+        const items = rows.filter(row => row.brand === brand && row.priceRange === range).sort((a, b) => b.monthlyRevenue - a.monthlyRevenue).slice(0, 3);
+        return `<td>${items.length ? items.map(item => `<div class="matrixProduct">${item.image ? `<a href="${esc(item.productUrl)}"><img src="${esc(item.image)}" loading="lazy" referrerpolicy="no-referrer" onerror="imageFallback(this)"></a>` : '<div></div>'}<div><a class="productTitle" href="${esc(item.productUrl)}">${esc(item.title)}</a><div class="small">${shortMoney(market, item.monthlyRevenue)} · ${fmtPrice(market, item.buyBoxPrice)}</div></div></div>`).join("") : '<span class="small">No product</span>'}</td>`;
+      }).join("")}</tr>`).join("");
+      const html = `<table class="table matrix"><thead><tr><th>Brand</th>${ranges.map(range => `<th>${esc(range)}</th>`).join("")}</tr></thead><tbody>${body}</tbody></table>`;
+      return tableBlock(html, `${market}_brand_price_matrix`);
+    }
+    function deepDivePanel(market) {
+      const categories = aggregate(filteredRows(), market, "category").slice(0, 12);
+      const inner = categories.map((cat, index) => {
+        const rows = productRows(market, cat.name);
+        const brands = aggregate(rows, market, "brand").filter(row => row.name !== "Unknown");
+        const prices = aggregate(rows, market, "priceRange");
+        return `<details class="deepItem" ${index === 0 ? "open" : ""}><summary><strong>${index + 1}. ${esc(cat.name)}</strong><span>${fmtNum(cat.products)} products · ${shortMoney(market, cat.monthlyRevenue)} · <span class="pill ${cat.serClass}">${cat.serClass}</span></span></summary><div class="deepContent">
+          <div class="kpis">${kpiCard("Monthly Revenue", shortMoney(market, cat.monthlyRevenue), `${fmtNum(cat.monthlyUnits)} units/mo`)}${kpiCard("ASP", fmtPrice(market, cat.asp), `Avg price ${fmtPrice(market, cat.avgPrice)}`)}${kpiCard("Page Score", cat.avgPageScore.toFixed(1), `Rating ${cat.avgRating.toFixed(1)}`)}${kpiCard("Top Brand", esc(brands[0]?.name || "n/a"), brands[0] ? shortMoney(market, brands[0].monthlyRevenue) : "")}${kpiCard("12M Growth", growthCell(cat.avgGrowth12), "Revenue-weighted")}</div>
+          <h4>Brand</h4>${metricTable(brands, market, "Brand", { limit: 30 })}
+          <h4>Price Range</h4>${metricTable(prices, market, "Price Range", { limit: 20 })}
+          <h4>Top Products</h4>${productTable(rows, market, 80)}
+          <h4>Top Brand x Price Range</h4>${brandPriceMatrix(rows, market)}
+        </div></details>`;
+      }).join("");
+      return panel(market, inner || '<div class="empty">No category for current filter.</div>', `${categories.length} categories`);
+    }
+
+    function render() {
+      document.getElementById("highlight").innerHTML = highlights();
+      document.getElementById("categoryShare").innerHTML = categoryShare();
+      document.getElementById("categoryBreakdown").innerHTML = comparison("Category Breakdown", "Revenue share and SER are calculated separately inside each market", marketPanel("US", "category", "Category"), marketPanel("JP", "category", "Category"));
+      document.getElementById("priceBreakdown").innerHTML = comparison("Price Range Breakdown", "Price bands are market-specific because currencies differ", marketPanel("US", "priceRange", "Price Range"), marketPanel("JP", "priceRange", "Price Range"));
+      document.getElementById("brandBreakdown").innerHTML = comparison("Top Brand", "Unknown brand removed from the ranking table", marketPanel("US", "brand", "Brand"), marketPanel("JP", "brand", "Brand"));
+      document.getElementById("serBreakdown").innerHTML = comparison("SER Quadrant By Category", "E = %Monthly Units/%Products, R = %Monthly Revenue/%Products; bubble size = monthly revenue", serChart("US"), serChart("JP"));
+      document.getElementById("deepDive").innerHTML = comparison("Category Deep Dive", "Open each category for brand, price range, product list, and brand x price matrix", deepDivePanel("US"), deepDivePanel("JP"));
+      document.getElementById("rawData").innerHTML = comparison("Raw Product Data", "Top products by monthly revenue after filters", panel("US", productTable(productRows("US"), "US", 500), `${productRows("US").length} products`), panel("JP", productTable(productRows("JP"), "JP", 500), `${productRows("JP").length} products`));
+    }
+
+    function imageFallback(img) {
+      if (img.dataset.fallbackTried === "1") {
+        img.style.visibility = "hidden";
+        return;
+      }
+      img.dataset.fallbackTried = "1";
+      img.src = img.src.replace(/\._[^/]+_\.(jpg|jpeg|png|webp)$/i, ".$1");
+    }
+
+    async function start() {
+      DATA.products = hydrateRows(DATA.products || []);
+      rebuildFilters();
+      await loadExternalData();
+      initFilters();
+      render();
+    }
+
+    start().catch(error => {
+      const note = document.querySelector(".note");
+      if (note) note.innerHTML += ` <strong>Load error:</strong> ${esc(error.message)}`;
+      console.error(error);
+    });
+  </script>
+</body>
+</html>
